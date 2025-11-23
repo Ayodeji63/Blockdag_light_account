@@ -2,5 +2,39 @@
 src = "src"
 out = "out"
 libs = ["lib"]
+solc_version = "0.8.28"
+optimizer = true
+optimizer_runs = 1000000
+via_ir = false
+evm_version = "cancun"
 
-# See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
+# Remappings for imports
+remappings = [
+    "@openzeppelin/=lib/openzeppelin-contracts/",
+    "account-abstraction/=lib/account-abstraction/contracts/",
+    "@solady/=lib/solady/src/"
+]
+
+# EVM version
+
+# Verbosity
+verbosity = 2
+
+# Gas reports
+gas_reports = ["*"]
+
+[profile.ci]
+fuzz = { runs = 5000 }
+
+[fmt]
+line_length = 120
+tab_width = 4
+bracket_spacing = true
+int_types = "long"
+
+[rpc_endpoints]
+blockdag_testnet = "${BLOCKDAG_RPC_URL}"
+blockdag_mainnet = "${BLOCKDAG_MAINNET_RPC_URL}"
+
+[etherscan]
+blockdag_testnet = { key = "${BLOCKDAG_EXPLORER_API_KEY}", url = "https://explorer-testnet.blockdag.network/api" }
