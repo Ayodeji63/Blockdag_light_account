@@ -16,7 +16,7 @@ import {TokenCallbackHandler} from "account-abstraction/accounts/callback/TokenC
 /// - Execute signle or batch calls
 /// - ERC-1271 signature validation
 
-contract BlockDagLightAccount is BaseAccount, TokenCallbackHandler {
+contract BlockDAGLightAccount is BaseAccount, TokenCallbackHandler {
     using ECDSA for bytes32;
     using MessageHashUtils for bytes32;
 
