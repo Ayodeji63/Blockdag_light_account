@@ -9,7 +9,7 @@ import {BlockDAGLightAccount} from "./BlockDAGLightAccount.sol";
 /// @title BlockDAG Account Factory
 /// @notice Factory for deploying BlockDAG Light Accounts
 /// @dev Uses CREATE2 for deterministic addresses
-contract BlockDAGAccountFactory {
+contract BlockDAGLightAccountFactory {
     // ============================================
     // STATE VARIABLES
     // ============================================

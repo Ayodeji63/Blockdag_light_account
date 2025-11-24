@@ -6,7 +6,8 @@ solc_version = "0.8.28"
 optimizer = true
 optimizer_runs = 1000000
 via_ir = false
-evm_version = "cancun"
+evm_version = "paris"
+push0 = false              
 
 # Remappings for imports
 remappings = [

@@ -9,13 +9,13 @@ import {BaseAccount} from "account-abstraction/core/BaseAccount.sol";
 import {TokenCallbackHandler} from "account-abstraction/accounts/callback/TokenCallbackHandler.sol";
 
 /// @title BlockDAG Light Account
-/// @author Abstract Labs
-/// @notice Signle ERC-4337 smart account optimized for BlockDAG Network
+/// @author Your Name
+/// @notice Simple ERC-4337 smart account optimized for BlockDAG Network
 /// @dev Key features:
 /// - Single owner
-/// - Execute signle or batch calls
+/// - Execute single or batch calls
 /// - ERC-1271 signature validation
-
+/// - Support for BlockDAG-specific features (mining rewards, parallel execution)
 contract BlockDAGLightAccount is BaseAccount, TokenCallbackHandler {
     using ECDSA for bytes32;
     using MessageHashUtils for bytes32;
@@ -30,11 +30,15 @@ contract BlockDAGLightAccount is BaseAccount, TokenCallbackHandler {
     // BlockDAG-specific: Track mining rewards balance
     uint256 public miningRewardsBalance;
 
+    // BlockDAG-specific: Nonce for parallel execution
     mapping(uint192 => uint64) public nonceSequenceNumber;
 
+    // ✅ FIX: Add separate initialization flag
+    bool private _initialized;
+
     // ======================================
-    // EVENTs
-    // =====================================
+    // EVENTS
+    // ======================================
 
     event BlockDAGAccountInitialized(
         IEntryPoint indexed entryPoint,
@@ -48,7 +52,7 @@ contract BlockDAGLightAccount is BaseAccount, TokenCallbackHandler {
 
     event MiningRewardsDeposited(address indexed depositor, uint256 amount);
 
-    event MinigRewardsUsed(uint256 amount, bytes userOpHash);
+    event MiningRewardsUsed(uint256 amount, bytes32 userOpHash);
 
     // ======================================
     // ERRORS
@@ -57,6 +61,7 @@ contract BlockDAGLightAccount is BaseAccount, TokenCallbackHandler {
     error NotAuthorized();
     error InvalidOwner();
     error CallFailed();
+    error AlreadyInitialized();
 
     // ======================================
     // MODIFIERS
@@ -75,18 +80,33 @@ contract BlockDAGLightAccount is BaseAccount, TokenCallbackHandler {
 
     constructor(IEntryPoint entryPoint_) {
         _entryPoint = entryPoint_;
-        _disableInitializers();
     }
 
+    // ======================================
+    // INITIALIZATION
+    // ======================================
+
+    /// @notice Initialize the account with an owner
+    /// @param owner_ The address that will own this account
     function initialize(address owner_) external {
-        if (owner != address(0)) revert("Already initialized");
+        // ✅ FIX: Check initialization flag instead of owner
+        if (_initialized) revert AlreadyInitialized();
         if (owner_ == address(0)) revert InvalidOwner();
 
+        _initialized = true;
         owner = owner_;
         emit BlockDAGAccountInitialized(_entryPoint, owner_);
         emit OwnershipTransferred(address(0), owner_);
     }
 
+    // ======================================
+    // CORE ACCOUNT FUNCTIONS
+    // ======================================
+
+    /// @notice Execute a single call
+    /// @param dest Target contract
+    /// @param value ETH value to send
+    /// @param func Calldata to execute
     function execute(
         address dest,
         uint256 value,
@@ -95,6 +115,10 @@ contract BlockDAGLightAccount is BaseAccount, TokenCallbackHandler {
         _call(dest, value, func);
     }
 
+    /// @notice Execute multiple calls in a batch
+    /// @param dest Array of target contracts
+    /// @param value Array of ETH values
+    /// @param func Array of calldata
     function executeBatch(
         address[] calldata dest,
         uint256[] calldata value,
@@ -105,10 +129,13 @@ contract BlockDAGLightAccount is BaseAccount, TokenCallbackHandler {
         }
 
         for (uint256 i = 0; i < dest.length; i++) {
-            _call(dest[1], value[i], func[i]);
+            // ✅ FIX: Was dest[1] - should be dest[i]
+            _call(dest[i], value[i], func[i]);
         }
     }
 
+    /// @notice Transfer ownership to a new address
+    /// @param newOwner The new owner address
     function transferOwnership(
         address newOwner
     ) external onlyOwnerOrEntryPoint {
@@ -121,9 +148,9 @@ contract BlockDAGLightAccount is BaseAccount, TokenCallbackHandler {
         emit OwnershipTransferred(oldOwner, newOwner);
     }
 
-    // ========================================
+    // ======================================
     // BLOCKDAG-SPECIFIC FEATURES
-    // ========================================
+    // ======================================
 
     /// @notice Deposit mining rewards that can be used for gas
     function depositMiningRewards() external payable {
@@ -131,10 +158,17 @@ contract BlockDAGLightAccount is BaseAccount, TokenCallbackHandler {
         emit MiningRewardsDeposited(msg.sender, msg.value);
     }
 
+    /// @notice Get nonce for a specific key (for parallel execution)
+    /// @param key The nonce key
     function getNonce(uint192 key) external view returns (uint256) {
         return nonceSequenceNumber[key] | (uint256(key) << 64);
     }
 
+    // ======================================
+    // ERC-4337 REQUIRED FUNCTIONS
+    // ======================================
+
+    /// @inheritdoc BaseAccount
     function entryPoint() public view virtual override returns (IEntryPoint) {
         return _entryPoint;
     }
@@ -166,8 +200,13 @@ contract BlockDAGLightAccount is BaseAccount, TokenCallbackHandler {
 
     /// @notice Disable initializers for the implementation contract
     function _disableInitializers() internal {
-        owner = address(1);
+        // ✅ FIX: Set initialization flag, not owner
+        _initialized = true;
     }
+
+    // ======================================
+    // RECEIVE ETH
+    // ======================================
 
     receive() external payable {}
 }
