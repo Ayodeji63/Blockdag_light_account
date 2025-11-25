@@ -27,6 +27,12 @@ This repository contains a complete smart account infrastructure built on the ER
 - **Parallel Execution**: Nonce structure supports parallel transaction execution on BlockDAG's DAG-based consensus
 - **Optimized for DAG Networks**: Designed to leverage BlockDAG's high throughput and low latency
 
+### Deployed Contracts
+
+- **[BlockDAGLightAccount](https://awakening.bdagscan.com/contractOverview/0x2ED79ab4046801dAF8EF03cF16647fd61Aa7c804)**
+- **[BlockDAGFactoryLightAccount](https://awakening.bdagscan.com/contractOverview/0xDE8b6382ED9C32Ca1711ab9C8B1fC9090C66112C)**
+- **[Paymaster](https://awakening.bdagscan.com/contractOverview/0x2ED79ab4046801dAF8EF03cF16647fd61Aa7c804)**
+
 ## Installation
 
 ```bash
