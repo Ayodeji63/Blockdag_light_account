@@ -163,13 +163,6 @@ forge test --match-path "test/Integration.t.sol"
 3. **EntryPoint Delegation**: Only EntryPoint and owner can execute transactions
 4. **Immutable EntryPoint**: Ensures accounts cannot be compromised by EntryPoint changes
 
-### Audit Notes
-
-- Implementation uses standard OpenZeppelin patterns
-- Follows ERC-4337 security guidelines
-- Access control via `onlyOwnerOrEntryPoint` modifier
-- Proper input validation on ownership transfers
-
 ## Gas Optimization
 
 - Batch execution reduces per-call overhead
@@ -204,13 +197,6 @@ forge test --match-path "test/Integration.t.sol"
 | `validatePaymasterUserOp(...)`    | Determine if UserOp should be sponsored |
 | `addToWhitelist(address account)` | Add address to sponsorship whitelist    |
 | `deposit()`                       | Deposit funds for sponsorship           |
-
-## Deployment
-
-### Supported Networks
-
-- BlockDAG Mainnet
-- BlockDAG Testnet
 
 ### Deployment Steps
 
